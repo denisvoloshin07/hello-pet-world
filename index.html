@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8ed">
+  <title>Hello Pet World</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #26352f;
+      --muted: #64736a;
+      --paper: #fffaf1;
+      --white: #fff;
+      --coral: #ef705c;
+      --green: #2f765c;
+      --line: #e8e4d8;
+      --shadow: 0 12px 32px rgb(52 57 42 / 8%);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 4% 5%, rgb(255 221 159 / 38%), transparent 25rem),
+        radial-gradient(ellipse at 95% 22%, rgb(184 224 202 / 38%), transparent 27rem),
+        var(--paper);
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid #347b62; outline-offset: 3px; }
+    .page { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgb(38 53 47 / 10%);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 900; }
+    .brand-mark {
+      display: grid;
+      width: 36px;
+      aspect-ratio: 1;
+      place-items: center;
+      border-radius: 12px;
+      background: #f9cc71;
+      font-size: 21px;
+    }
+    .favorite-count {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 13px;
+      border: 1px solid #f0d7d1;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .favorite-count span { color: var(--coral); }
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 46px 0 34px;
+    }
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 650px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(36px, 6vw, 62px);
+      font-weight: 700;
+      line-height: 1.02;
+    }
+    h1 em { color: var(--coral); font-weight: 400; }
+    .intro-copy { max-width: 390px; margin: 14px 0 0; color: var(--muted); line-height: 1.6; }
+    .recommend-button {
+      display: inline-flex;
+      flex: 0 0 auto;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 17px;
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      background: var(--green);
+      box-shadow: 0 5px 0 #20543f;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+    .recommend-button:hover { transform: translateY(-2px); background: #27694f; box-shadow: 0 7px 0 #20543f; }
+    .recommend-button:active { transform: translateY(2px); box-shadow: 0 2px 0 #20543f; }
+    .recommendation {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 24px;
+      padding: 12px 15px;
+      border: 1px solid #f2d794;
+      border-radius: 14px;
+      background: #fff7dc;
+      line-height: 1.45;
+    }
+    .recommendation.is-visible { display: flex; }
+    .recommendation button { padding: 0; border: 0; color: var(--green); background: none; cursor: pointer; font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+    .shelf {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 17px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-button {
+      min-height: 38px;
+      padding: 0 15px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .filter-button:hover { background: #f0eee5; }
+    .filter-button[aria-pressed="true"] { border-color: var(--ink); color: white; background: var(--ink); }
+    .results-label { margin: 0; color: var(--muted); font-size: 14px; }
+    .pet-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 25px 0 60px; }
+    .pet-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: 0 4px 14px rgb(52 57 42 / 4%);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .pet-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .pet-open { display: block; width: 100%; padding: 0; border: 0; color: inherit; background: none; cursor: pointer; text-align: left; }
+    .pet-art {
+      position: relative;
+      display: grid;
+      min-height: 190px;
+      overflow: hidden;
+      place-items: center;
+      isolation: isolate;
+    }
+    .pet-art::before, .pet-art::after { position: absolute; z-index: -1; content: ""; border-radius: 50%; }
+    .pet-art::before { width: 190px; aspect-ratio: 1; background: rgb(255 255 255 / 38%); }
+    .pet-art::after { width: 38px; aspect-ratio: 1; right: 18%; bottom: 22px; background: rgb(255 255 255 / 48%); box-shadow: -156px -105px 0 -7px rgb(255 255 255 / 60%); }
+    .pet-art--peach { background: #f8c7a6; }
+    .pet-art--mint { background: #b7ddc7; }
+    .pet-art--sky { background: #b8d9ed; }
+    .pet-art--lemon { background: #f5df8e; }
+    .pet-art--lilac { background: #d7c6e7; }
+    .pet-art--rose { background: #f2bdc7; }
+    .pet-face { filter: drop-shadow(0 8px 0 rgb(38 53 47 / 10%)); font-size: 92px; line-height: 1; transition: transform 180ms ease; }
+    .pet-open:hover .pet-face { transform: rotate(-5deg) scale(1.06); }
+    .pet-info { padding: 16px 18px 18px; }
+    .pet-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+    .pet-type { color: var(--green); font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+    .pet-age { color: var(--muted); font-size: 12px; }
+    .pet-name { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 25px; line-height: 1.15; }
+    .pet-breed { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+    .heart-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      display: grid;
+      width: 40px;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgb(38 53 47 / 8%);
+      border-radius: 50%;
+      color: #788078;
+      background: white;
+      box-shadow: 0 3px 8px rgb(38 53 47 / 10%);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .heart-button[aria-pressed="true"] { color: #d94f52; }
+    .empty-state { grid-column: 1 / -1; padding: 48px 20px; border: 1px dashed #c9cfc5; border-radius: 18px; color: var(--muted); text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 23px; }
+    .footer { padding: 18px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; text-align: center; }
+    dialog {
+      width: min(470px, calc(100% - 32px));
+      max-height: min(90vh, 760px);
+      padding: 0;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      color: var(--ink);
+      background: white;
+      box-shadow: 0 24px 80px rgb(25 36 29 / 28%);
+    }
+    dialog::backdrop { background: rgb(28 39 33 / 55%); backdrop-filter: blur(3px); }
+    .dialog-art { display: grid; min-height: 210px; place-items: center; }
+    .dialog-art .pet-face { font-size: 104px; }
+    .dialog-body { padding: 22px 24px 25px; }
+    .dialog-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .dialog-topline .pet-type { margin: 0; }
+    .close-button { display: grid; width: 38px; aspect-ratio: 1; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: white; cursor: pointer; font-size: 22px; }
+    .dialog-body h2 { margin: 10px 0 3px; font-family: Georgia, "Times New Roman", serif; font-size: 34px; }
+    .dialog-subtitle { margin: 0 0 18px; color: var(--muted); }
+    .detail-list { display: grid; gap: 0; margin: 0; }
+    .detail-row { display: grid; grid-template-columns: 128px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); line-height: 1.45; }
+    .detail-row dt { color: var(--muted); font-size: 13px; font-weight: 800; }
+    .detail-row dd { margin: 0; }
+    @media (max-width: 760px) {
+      .intro { align-items: flex-start; flex-direction: column; padding-top: 36px; }
+      .intro-actions { width: 100%; }
+      .recommend-button { width: 100%; }
+      .pet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+      .pet-art { min-height: 165px; }
+      .pet-face { font-size: 78px; }
+    }
+    @media (max-width: 480px) {
+      .page { width: min(100% - 28px, 1120px); }
+      .topbar { min-height: 66px; }
+      .brand { font-size: 14px; }
+      .favorite-count { min-height: 35px; padding: 0 10px; font-size: 12px; }
+      .pet-grid { gap: 10px; padding-top: 18px; }
+      .pet-art { min-height: 135px; }
+      .pet-face { font-size: 65px; }
+      .pet-info { padding: 13px 12px 15px; }
+      .pet-name { font-size: 21px; }
+      .pet-breed { font-size: 12px; }
+      .pet-age { font-size: 11px; }
+      .heart-button { top: 8px; right: 8px; width: 36px; }
+      .shelf { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .filters { width: 100%; }
+      .filter-button { flex: 1; padding: 0 10px; }
+      .detail-row { grid-template-columns: 105px 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar page">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">🐾</span><span>Hello Pet World</span></div>
+    <div class="favorite-count" aria-label="Favourites count"><span aria-hidden="true">♥</span><span id="favorite-count" aria-live="polite">0</span> favourites</div>
+  </header>
+
+  <main class="page">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">A little world of lovely pets</p>
+        <h1 id="page-title">Little fins.<br><em>Even bigger</em> hearts.</h1>
+        <p class="intro-copy">Meet six one-of-a-kind friends. Pick a favourite, peek at their stories, and see who finds you today.</p>
+      </div>
+      <div class="intro-actions">
+        <button class="recommend-button" id="recommend-button" type="button"><span aria-hidden="true">✦</span> Meet a random pet</button>
+      </div>
+    </section>
+
+    <div class="recommendation" id="recommendation" role="status" aria-live="polite">
+      <span aria-hidden="true">✨</span><span id="recommendation-text"></span>
+    </div>
+
+    <section aria-label="Browse pets">
+      <div class="shelf">
+        <div class="filters" role="group" aria-label="Filter pets">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">All pets</button>
+          <button class="filter-button" type="button" data-filter="fish" aria-pressed="false">Fish</button>
+          <button class="filter-button" type="button" data-filter="cat" aria-pressed="false">Cats</button>
+          <button class="filter-button" type="button" data-filter="favorites" aria-pressed="false">♥ Favourites</button>
+        </div>
+        <p class="results-label" id="results-label" aria-live="polite">6 friendly faces</p>
+      </div>
+      <div class="pet-grid" id="pet-grid" aria-label="Pets"></div>
+    </section>
+  </main>
+
+  <footer class="footer page">Made for daydreaming about your next best friend.</footer>
+
+  <dialog id="pet-dialog" aria-labelledby="dialog-name">
+    <div class="dialog-art" id="dialog-art" aria-hidden="true"></div>
+    <div class="dialog-body">
+      <div class="dialog-topline">
+        <p class="pet-type" id="dialog-type"></p>
+        <button class="close-button" id="close-dialog" type="button" aria-label="Close pet details">×</button>
+      </div>
+      <h2 id="dialog-name"></h2>
+      <p class="dialog-subtitle" id="dialog-breed-age"></p>
+      <dl class="detail-list">
+        <div class="detail-row"><dt>Personality</dt><dd id="dialog-personality"></dd></div>
+        <div class="detail-row"><dt>Favourite activity</dt><dd id="dialog-activity"></dd></div>
+      </dl>
+    </div>
+  </dialog>
+
+  <script>
+    "use strict";
+
+    const pets = [
+      { id: "bubbles", name: "Bubbles", type: "fish", breed: "Betta", age: "2 years old", personality: "Curious and confident, with a graceful little flair.", activity: "Gliding through a trail of bubbles", face: "🐠", color: "peach" },
+      { id: "coral", name: "Coral", type: "fish", breed: "Clownfish", age: "1 year old", personality: "Cheerful, sociable, and happiest with a buddy nearby.", activity: "Playing hide-and-seek in the sea anemone", face: "🐟", color: "mint" },
+      { id: "marbles", name: "Marbles", type: "fish", breed: "Fancy Goldfish", age: "3 years old", personality: "A gentle daydreamer who loves a peaceful swim.", activity: "Exploring the castle at the bottom of the tank", face: "🐡", color: "lemon" },
+      { id: "poppy", name: "Poppy", type: "cat", breed: "Calico", age: "1 year old", personality: "Curious and chatty, with a purr for every occasion.", activity: "Chasing paper butterflies", face: "🐱", color: "rose" },
+      { id: "juniper", name: "Juniper", type: "cat", breed: "Caracal", age: "5 years old", personality: "An alert, thoughtful friend with tall tufted ears and a gentle heart.", activity: "Leaping after feather toys", face: "🐈", color: "sky" },
+      { id: "fig", name: "Fig", type: "cat", breed: "Tabby", age: "2 years old", personality: "Playful, quick-footed, and full of tiny surprises.", activity: "Exploring cardboard castles", face: "😸", color: "lilac" }
+    ];
+
+    const favorites = new Set();
+    const petGrid = document.querySelector("#pet-grid");
+    const resultsLabel = document.querySelector("#results-label");
+    const favoriteCount = document.querySelector("#favorite-count");
+    const petDialog = document.querySelector("#pet-dialog");
+    let activeFilter = "all";
+
+    function renderPets() {
+      const visiblePets = pets.filter((pet) => {
+        if (activeFilter === "favorites") return favorites.has(pet.id);
+        return activeFilter === "all" || pet.type === activeFilter;
+      });
+
+      favoriteCount.textContent = String(favorites.size);
+      resultsLabel.textContent = `${visiblePets.length} ${visiblePets.length === 1 ? "friendly face" : "friendly faces"}`;
+
+      if (visiblePets.length === 0) {
+        petGrid.innerHTML = '<div class="empty-state"><strong>No favourites just yet</strong>Tap a heart on any pet to save them here.</div>';
+        return;
+      }
+
+      petGrid.innerHTML = visiblePets.map((pet) => `
+        <article class="pet-card">
+          <button class="heart-button" type="button" data-favorite="${pet.id}" aria-label="${favorites.has(pet.id) ? "Remove" : "Add"} ${pet.name} ${favorites.has(pet.id) ? "from" : "to"} favourites" aria-pressed="${favorites.has(pet.id)}">${favorites.has(pet.id) ? "♥" : "♡"}</button>
+          <button class="pet-open" type="button" data-pet="${pet.id}" aria-label="View details about ${pet.name}, ${pet.breed}">
+            <span class="pet-art pet-art--${pet.color}" aria-hidden="true"><span class="pet-face">${pet.face}</span></span>
+            <span class="pet-info">
+              <span class="pet-meta"><span class="pet-type">${pet.type}</span><span class="pet-age">${pet.age}</span></span>
+              <span class="pet-name">${pet.name}</span>
+              <span class="pet-breed">${pet.breed}</span>
+            </span>
+          </button>
+        </article>
+      `).join("");
+    }
+
+    function showPet(pet) {
+      document.querySelector("#dialog-art").innerHTML = `<span class="pet-art pet-art--${pet.color}"><span class="pet-face">${pet.face}</span></span>`;
+      document.querySelector("#dialog-type").textContent = pet.type;
+      document.querySelector("#dialog-name").textContent = pet.name;
+      document.querySelector("#dialog-breed-age").textContent = `${pet.breed} · ${pet.age}`;
+      document.querySelector("#dialog-personality").textContent = pet.personality;
+      document.querySelector("#dialog-activity").textContent = pet.activity;
+      petDialog.showModal();
+    }
+
+    document.querySelector(".filters").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-filter]");
+      if (!button) return;
+      activeFilter = button.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach((filterButton) => {
+        filterButton.setAttribute("aria-pressed", String(filterButton === button));
+      });
+      renderPets();
+    });
+
+    petGrid.addEventListener("click", (event) => {
+      const favoriteButton = event.target.closest("[data-favorite]");
+      if (favoriteButton) {
+        const petId = favoriteButton.dataset.favorite;
+        if (favorites.has(petId)) favorites.delete(petId);
+        else favorites.add(petId);
+        renderPets();
+        return;
+      }
+
+      const petButton = event.target.closest("[data-pet]");
+      if (petButton) showPet(pets.find((pet) => pet.id === petButton.dataset.pet));
+    });
+
+    document.querySelector("#recommend-button").addEventListener("click", () => {
+      const pet = pets[Math.floor(Math.random() * pets.length)];
+      const recommendation = document.querySelector("#recommendation");
+      const recommendationText = document.querySelector("#recommendation-text");
+      recommendationText.innerHTML = `Today's little hello is <button type="button" data-recommended-pet="${pet.id}">${pet.name}</button>, a lovely ${pet.breed.toLowerCase()}!`;
+      recommendation.classList.add("is-visible");
+    });
+
+    document.querySelector("#recommendation").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-recommended-pet]");
+      if (button) showPet(pets.find((pet) => pet.id === button.dataset.recommendedPet));
+    });
+
+    document.querySelector("#close-dialog").addEventListener("click", () => petDialog.close());
+    petDialog.addEventListener("click", (event) => {
+      if (event.target === petDialog) petDialog.close();
+    });
+
+    renderPets();
+  </script>
+</body>
+</html>
